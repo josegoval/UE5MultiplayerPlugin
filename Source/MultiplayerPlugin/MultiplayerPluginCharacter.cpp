@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMultiplayerPluginCharacter
@@ -76,6 +77,26 @@ void AMultiplayerPluginCharacter::SetupPlayerInputComponent(class UInputComponen
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &AMultiplayerPluginCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &AMultiplayerPluginCharacter::TouchStopped);
 }
+
+void AMultiplayerPluginCharacter::OpenLobby()
+{
+	UWorld* World = GetWorld();
+	if(!World) return;
+	World->ServerTravel("/Game/ThirdPerson/Maps/Lobby?listen");
+}
+
+void AMultiplayerPluginCharacter::CallOpenLevel(const FString& Address)
+{
+	UGameplayStatics::OpenLevel(this, *Address);
+}
+
+void AMultiplayerPluginCharacter::CallTravelLevel(const FString& Address)
+{
+	APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController();
+	if(!PlayerController) return;
+	PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+}
+
 
 void AMultiplayerPluginCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
 {
